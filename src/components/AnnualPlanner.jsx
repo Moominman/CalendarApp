@@ -20,6 +20,7 @@ import './AnnualPlanner.css'
 const CELL_WIDTH = 26
 const ROW_HEIGHT = 44
 const HEADER_HEIGHT = 50
+const STORAGE_KEY = 'annual-planner-events'
 
 const SAMPLE_EVENTS = [
   { id: 'sample-1', title: 'New Year Break', startDate: '2026-01-01', endDate: '2026-01-04', color: EVENT_COLORS[0] },
@@ -34,9 +35,30 @@ const SAMPLE_EVENTS = [
   { id: 'sample-10', title: 'Holiday Season', startDate: '2026-12-21', endDate: '2026-12-31', color: EVENT_COLORS[9] },
 ]
 
+function loadEvents() {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY)
+    if (stored) {
+      const parsed = JSON.parse(stored)
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed
+    }
+  } catch {
+    // ignore parse errors
+  }
+  return SAMPLE_EVENTS
+}
+
+function saveEvents(events) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(events))
+  } catch {
+    // ignore storage errors
+  }
+}
+
 function AnnualPlanner() {
   const [year, setYear] = useState(2026)
-  const [events, setEvents] = useState(SAMPLE_EVENTS)
+  const [events, setEvents] = useState(loadEvents)
   const [dragState, setDragState] = useState(null)
   const [editingEvent, setEditingEvent] = useState(null)
   const [todayMarker, setTodayMarker] = useState(null)
@@ -46,6 +68,11 @@ function AnnualPlanner() {
   const yearGrid = useMemo(() => getYearGrid(year), [year])
   const { totalWeeks, startOffset } = useMemo(() => getYearColumns(year), [year])
   const totalColumns = totalWeeks * 7
+
+  // Persist events to localStorage on every change
+  useEffect(() => {
+    saveEvents(events)
+  }, [events])
 
   // Calculate today's column position
   useEffect(() => {
@@ -260,9 +287,13 @@ function AnnualPlanner() {
   }, [events])
 
   const handleSaveEvent = useCallback((updatedEvent) => {
-    setEvents(prev => prev.map(ev =>
-      ev.id === updatedEvent.id ? updatedEvent : ev
-    ))
+    setEvents(prev => {
+      const exists = prev.some(ev => ev.id === updatedEvent.id)
+      if (exists) {
+        return prev.map(ev => ev.id === updatedEvent.id ? updatedEvent : ev)
+      }
+      return [...prev, updatedEvent]
+    })
     setEditingEvent(null)
   }, [])
 
@@ -270,6 +301,25 @@ function AnnualPlanner() {
     setEvents(prev => prev.filter(ev => ev.id !== eventId))
     setEditingEvent(null)
   }, [])
+
+  // Open modal with a blank event for manual creation via the + button
+  const handleAddEvent = useCallback(() => {
+    const today = new Date()
+    const eventYear = year
+    const month = today.getFullYear() === year ? today.getMonth() : 0
+    const day = today.getFullYear() === year ? today.getDate() : 1
+    const dateStr = formatDateStr(eventYear, month, day)
+    const color = getNextColor()
+    const newEvent = {
+      id: Date.now().toString(),
+      title: '',
+      startDate: dateStr,
+      endDate: dateStr,
+      color,
+    }
+    setEvents(prev => [...prev, newEvent])
+    setEditingEvent(newEvent)
+  }, [year])
 
   // Get events overlapping a given month
   const getEventsForMonth = useCallback((month) => {
@@ -350,7 +400,9 @@ function AnnualPlanner() {
         <button className="nav-btn" onClick={() => setYear(y => y - 1)}>&larr;</button>
         <h1 className="year-title">{year}</h1>
         <button className="nav-btn" onClick={() => setYear(y => y + 1)}>&rarr;</button>
+        <button className="add-event-btn" onClick={handleAddEvent}>+ Add Event</button>
         <div className="toolbar-spacer" />
+        <span className="toolbar-hint">Drag on grid to create &middot; Double-click event to edit</span>
         <button className="today-btn" onClick={() => {
           const today = new Date()
           setYear(today.getFullYear())

@@ -57,6 +57,17 @@
   border-color: #4A90D9;
 }
 
+.form-group input.input-error {
+  border-color: #E74C3C;
+}
+
+.form-error {
+  color: #E74C3C;
+  font-size: 12px;
+  margin-top: -8px;
+  margin-bottom: 12px;
+}
+
 .form-row {
   display: flex;
   gap: 12px;
@@ -118,12 +129,17 @@
   transition: background 0.15s, opacity 0.15s;
 }
 
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .btn-save {
   background: #4A90D9;
   color: #fff;
 }
 
-.btn-save:hover {
+.btn-save:hover:not(:disabled) {
   background: #5aa0e9;
 }
 
@@ -144,4 +160,47 @@
 
 .btn-delete:hover {
   background: rgba(231, 76, 60, 0.15);
+}
+
+/* Delete confirmation */
+.delete-confirm {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.delete-confirm-text {
+  font-size: 13px;
+  color: #E74C3C;
+  font-weight: 500;
+}
+
+.btn-delete-confirm {
+  background: #E74C3C;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-delete-confirm:hover {
+  background: #c0392b;
+}
+
+.btn-cancel-small {
+  background: #2a2a4a;
+  color: #ccc;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-cancel-small:hover {
+  background: #3a3a5a;
 }

@@ -7,23 +7,34 @@ function EventModal({ event, onSave, onDelete, onClose }) {
   const [startDate, setStartDate] = useState(event.startDate)
   const [endDate, setEndDate] = useState(event.endDate)
   const [colorIdx, setColorIdx] = useState(
-    EVENT_COLORS.findIndex(c => c.bg === event.color.bg)
+    Math.max(0, EVENT_COLORS.findIndex(c => c.bg === event.color.bg))
   )
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
+
+  const dateError = startDate > endDate ? 'End date must be on or after start date' : ''
 
   const handleSave = () => {
-    if (startDate > endDate) return
+    if (dateError) return
     onSave({
       ...event,
       title: title.trim() || 'Untitled',
       startDate,
       endDate,
-      color: EVENT_COLORS[colorIdx >= 0 ? colorIdx : 0],
+      color: EVENT_COLORS[colorIdx],
     })
   }
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter') handleSave()
+    if (e.key === 'Enter' && !dateError) handleSave()
     if (e.key === 'Escape') onClose()
+  }
+
+  const handleDelete = () => {
+    if (!confirmingDelete) {
+      setConfirmingDelete(true)
+      return
+    }
+    onDelete(event.id)
   }
 
   return (
@@ -51,6 +62,7 @@ function EventModal({ event, onSave, onDelete, onClose }) {
               type="date"
               value={startDate}
               onChange={e => setStartDate(e.target.value)}
+              className={dateError ? 'input-error' : ''}
             />
           </div>
           <div className="form-group">
@@ -59,9 +71,11 @@ function EventModal({ event, onSave, onDelete, onClose }) {
               type="date"
               value={endDate}
               onChange={e => setEndDate(e.target.value)}
+              className={dateError ? 'input-error' : ''}
             />
           </div>
         </div>
+        {dateError && <div className="form-error">{dateError}</div>}
 
         <div className="form-group">
           <label>Color</label>
@@ -79,14 +93,26 @@ function EventModal({ event, onSave, onDelete, onClose }) {
         </div>
 
         <div className="modal-actions">
-          <button className="btn btn-delete" onClick={() => onDelete(event.id)}>
-            Delete
-          </button>
+          {confirmingDelete ? (
+            <div className="delete-confirm">
+              <span className="delete-confirm-text">Delete this event?</span>
+              <button className="btn btn-delete-confirm" onClick={handleDelete}>
+                Yes, delete
+              </button>
+              <button className="btn btn-cancel-small" onClick={() => setConfirmingDelete(false)}>
+                No
+              </button>
+            </div>
+          ) : (
+            <button className="btn btn-delete" onClick={handleDelete}>
+              Delete
+            </button>
+          )}
           <div className="modal-actions-right">
             <button className="btn btn-cancel" onClick={onClose}>
               Cancel
             </button>
-            <button className="btn btn-save" onClick={handleSave}>
+            <button className="btn btn-save" onClick={handleSave} disabled={!!dateError}>
               Save
             </button>
           </div>
