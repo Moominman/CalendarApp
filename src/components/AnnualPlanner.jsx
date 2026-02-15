@@ -21,9 +21,22 @@ const CELL_WIDTH = 26
 const ROW_HEIGHT = 44
 const HEADER_HEIGHT = 50
 
+const SAMPLE_EVENTS = [
+  { id: 'sample-1', title: 'New Year Break', startDate: '2026-01-01', endDate: '2026-01-04', color: EVENT_COLORS[0] },
+  { id: 'sample-2', title: 'Project Alpha', startDate: '2026-01-19', endDate: '2026-01-30', color: EVENT_COLORS[1] },
+  { id: 'sample-3', title: 'Team Retreat', startDate: '2026-02-16', endDate: '2026-02-20', color: EVENT_COLORS[2] },
+  { id: 'sample-4', title: 'Conference', startDate: '2026-03-09', endDate: '2026-03-13', color: EVENT_COLORS[4] },
+  { id: 'sample-5', title: 'Spring Break', startDate: '2026-04-06', endDate: '2026-04-17', color: EVENT_COLORS[5] },
+  { id: 'sample-6', title: 'Product Launch', startDate: '2026-05-04', endDate: '2026-05-08', color: EVENT_COLORS[3] },
+  { id: 'sample-7', title: 'Summer Holiday', startDate: '2026-07-20', endDate: '2026-08-07', color: EVENT_COLORS[6] },
+  { id: 'sample-8', title: 'Q3 Planning', startDate: '2026-09-01', endDate: '2026-09-05', color: EVENT_COLORS[7] },
+  { id: 'sample-9', title: 'Hackathon', startDate: '2026-10-12', endDate: '2026-10-16', color: EVENT_COLORS[8] },
+  { id: 'sample-10', title: 'Holiday Season', startDate: '2026-12-21', endDate: '2026-12-31', color: EVENT_COLORS[9] },
+]
+
 function AnnualPlanner() {
   const [year, setYear] = useState(2026)
-  const [events, setEvents] = useState([])
+  const [events, setEvents] = useState(SAMPLE_EVENTS)
   const [dragState, setDragState] = useState(null)
   const [editingEvent, setEditingEvent] = useState(null)
   const [todayMarker, setTodayMarker] = useState(null)
